@@ -6,6 +6,11 @@
 -- Credentials (dev only):
 --   tester1@test.local / Xafsh-test-1
 --   tester2@test.local / Xafsh-test-2
+--
+-- The owner's real accounts (phone login) also got a dev email+password on 2026-10-12 so they can
+-- be used from /#/login?dev=1 before SMS / Test OTPs are configured. Remove before public launch:
+--   admin@x3afsh.local  / Admin-2026!    → +201120492320 (صاحب المنصة، لوحة التحكم)
+--   client@x3afsh.local / Client-2026!   → +201017742635 (عميل تجريبي)
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
                         raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
