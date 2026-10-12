@@ -19,6 +19,9 @@ export default function ListingCard({ listing, source }: { listing: Listing; sou
       <div className="c">
         <p className="t">{listing.title}</p>
         <p className="p">{formatPrice(listing.price)}</p>
+        {listing.rating && listing.rating.rating_count > 0 && (
+          <p className="m" style={{ color: '#b8860b' }}>★ {listing.rating.avg_rating} <span style={{ color: 'var(--muted)' }}>({listing.rating.rating_count})</span></p>
+        )}
         <p className="m">
           {listing.categories?.name_ar}{listing.categories && listing.governorates ? ' · ' : ''}{listing.governorates?.name_ar}
           {listing.published_at ? ` · ${timeAgo(listing.published_at)}` : ''}

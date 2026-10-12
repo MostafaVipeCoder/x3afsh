@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useRefData } from '../context/RefDataContext'
-import type { Listing } from '../lib/types'
+import type { Listing, RatingStats } from '../lib/types'
 import ListingCard from '../components/ListingCard'
 import { track, pageView } from '../lib/analytics'
 
@@ -51,6 +51,11 @@ export default function Home() {
     setLoading(false)
     if (err) { setError('حصلت مشكلة في تحميل الأطقم. جرّب تاني.'); return }
     const rows = (data as unknown as Listing[]) ?? []
+    if (rows.length) {
+      const { data: s } = await supabase.from('listing_rating_stats').select('*').in('listing_id', rows.map((r) => r.id))
+      const byId = new Map((s as RatingStats[] | null ?? []).map((x) => [x.listing_id, x]))
+      rows.forEach((r) => { r.rating = byId.get(r.id) ?? null })
+    }
     setItems((prev) => offset === 0 ? rows : [...prev, ...rows])
     setHasMore(rows.length === PAGE)
     if (offset === 0) {

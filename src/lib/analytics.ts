@@ -27,6 +27,22 @@ export type EventName =
   | 'listing_hidden'
   | 'listing_draft_abandoned'
   | 'profile_updated'
+  // phase 2
+  | 'review_started'
+  | 'review_blocked_short'
+  | 'review_posted'
+  | 'review_reply_posted'
+  | 'negotiation_opened_form'
+  | 'negotiation_started'
+  | 'negotiation_start_failed'
+  | 'negotiation_replied'
+  | 'negotiation_ended'
+  | 'conversation_opened'
+  | 'message_sent'
+  | 'user_blocked'
+  | 'user_unblocked'
+  | 'notifications_opened'
+  | 'notification_clicked'
 
 const key = import.meta.env.VITE_POSTHOG_KEY as string | undefined
 const host = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || 'https://eu.i.posthog.com'

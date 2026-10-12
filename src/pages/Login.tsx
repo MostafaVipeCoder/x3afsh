@@ -58,10 +58,31 @@ export default function Login() {
     else navigate(next, { replace: true })
   }
 
+  // Development only: email + password for the seeded test accounts (supabase/seed-dev-users.sql).
+  // Vite strips this block from production builds.
+  const devMode = import.meta.env.DEV && params.get('dev') === '1'
+  const [devEmail, setDevEmail] = useState('')
+  const [devPass, setDevPass] = useState('')
+  async function devLogin(e: FormEvent) {
+    e.preventDefault(); setError(null); setBusy(true)
+    const { error: err } = await supabase.auth.signInWithPassword({ email: devEmail, password: devPass })
+    setBusy(false)
+    if (err) { setError(err.message); return }
+    navigate(next, { replace: true })
+  }
+
   return (
     <div className="container" style={{ maxWidth: 440 }}>
       <div className="card"><div className="card-body">
-        {step === 'phone' ? (
+        {devMode ? (
+          <form onSubmit={devLogin}>
+            <h1>دخول للتطوير</h1>
+            {error && <div className="alert alert-error">{error}</div>}
+            <div className="field"><label>الإيميل</label><input className="input" type="email" value={devEmail} onChange={(e) => setDevEmail(e.target.value)} dir="ltr" /></div>
+            <div className="field"><label>كلمة السر</label><input className="input" type="password" value={devPass} onChange={(e) => setDevPass(e.target.value)} dir="ltr" /></div>
+            <button className="btn btn-primary btn-block" disabled={busy}>دخول</button>
+          </form>
+        ) : step === 'phone' ? (
           <form onSubmit={sendCode}>
             <h1>دخول أو حساب جديد</h1>
             <p className="meta">هنبعتلك كود على الموبايل. مفيش كلمة سر.</p>

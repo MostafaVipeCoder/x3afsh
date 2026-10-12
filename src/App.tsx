@@ -8,6 +8,9 @@ import NewListing from './pages/NewListing'
 import MyListings from './pages/MyListings'
 import Login from './pages/Login'
 import Account from './pages/Account'
+import NegotiationPage from './pages/NegotiationPage'
+import ChatPage from './pages/ChatPage'
+import Inbox from './pages/Inbox'
 
 export default function App() {
   return (
@@ -23,6 +26,9 @@ export default function App() {
               <Route path="/new" element={<NewListing />} />
               <Route path="/edit/:id" element={<NewListing />} />
               <Route path="/my" element={<MyListings />} />
+              <Route path="/inbox" element={<Inbox />} />
+              <Route path="/negotiation/:id" element={<NegotiationPage />} />
+              <Route path="/chat/:id" element={<ChatPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/account" element={<Account />} />
               <Route path="*" element={<Home />} />
