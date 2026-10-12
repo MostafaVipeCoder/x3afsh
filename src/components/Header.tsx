@@ -4,7 +4,7 @@ import { track } from '../lib/analytics'
 import NotificationBell from './NotificationBell'
 
 export default function Header() {
-  const { session, signOut } = useAuth()
+  const { session, profile, signOut } = useAuth()
   const navigate = useNavigate()
 
   return (
@@ -13,6 +13,7 @@ export default function Header() {
         <NavLink to="/" className="logo"><span>X</span>عفش</NavLink>
         <nav className="nav">
           <NavLink to="/" end className="hide-sm">الرئيسية</NavLink>
+          {profile?.is_owner && <NavLink to="/dashboard">📊 لوحة التحكم</NavLink>}
           {session && <NavLink to="/inbox">الوارد</NavLink>}
           {session && <NavLink to="/my" className="hide-sm">أطقمي</NavLink>}
           {session ? (

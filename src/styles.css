@@ -203,3 +203,47 @@ textarea.input { min-height: 120px; resize: vertical; }
 .nav .bell-menu .notif.unread { background: var(--primary-soft); }
 .nav .bell-menu .notif:hover { background: var(--bg); }
 .nav .bell-menu .btn-sm { border-radius: 8px; color: var(--primary); }
+
+/* ===== Phase 3: modals, surveys, dashboard ===== */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(19,48,58,.55); display: flex; align-items: flex-end; justify-content: center; z-index: 50; padding: 0; }
+@media (min-width: 600px) { .modal-backdrop { align-items: center; padding: 16px; } }
+.modal { background: #fff; width: 100%; max-width: 480px; border-radius: 18px 18px 0 0; padding: 20px 18px 18px; position: relative; max-height: 92vh; overflow-y: auto; box-shadow: 0 -4px 30px rgba(0,0,0,.2); }
+@media (min-width: 600px) { .modal { border-radius: 18px; } }
+.modal h2 { font-size: 19px; }
+.modal-close { position: absolute; top: 10px; inset-inline-start: 10px; background: var(--bg); border: 0; width: 32px; height: 32px; border-radius: 999px; font-size: 20px; color: var(--muted); }
+.choice-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.choice-list .btn { width: 100%; padding: 12px; font-size: 16px; }
+.faces { display: flex; gap: 6px; justify-content: space-between; margin-top: 10px; }
+.faces button { flex: 1; background: var(--bg); border: 2px solid transparent; border-radius: 12px; padding: 8px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.faces button span { font-size: 28px; }
+.faces button small { font-size: 11px; color: var(--muted); }
+.faces button.on { border-color: var(--accent); background: #fff3ef; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 8px; }
+.chips button { background: #fff; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 12px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.chips button.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+.dash { max-width: 1100px; }
+.dash-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.dash-section { margin-top: 26px; }
+.dash-section h2 { font-size: 20px; border-inline-start: 4px solid var(--accent); padding-inline-start: 10px; }
+.dash-section h3 { font-size: 15px; color: var(--muted); margin: 14px 0 6px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.stat { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.stat.warn { border-color: #f3c3bd; background: #fff8f7; }
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 600; }
+.stat-value { font-size: 22px; font-weight: 800; color: var(--ink); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.stat-hint { font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.5; }
+.chg { font-size: 12px; font-weight: 700; color: var(--muted); }
+.chg.up { color: var(--success); } .chg.down { color: var(--danger); }
+.charts2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 10px; }
+.charts2 .card-body h3 { margin: 0 0 8px; color: var(--ink); }
+.hbars { display: flex; flex-direction: column; gap: 6px; }
+.hbar { display: grid; grid-template-columns: 130px 1fr 48px; align-items: center; gap: 8px; font-size: 13px; }
+.hbar-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbar-track { height: 14px; background: var(--bg); border-radius: 7px; overflow: hidden; }
+.hbar-fill { display: block; height: 100%; background: var(--primary); border-radius: 7px; min-width: 2px; }
+.hbar-val { font-weight: 700; text-align: start; }
+.legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 4px; vertical-align: middle; }
+.quote { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.quote:last-child { border-bottom: 0; }

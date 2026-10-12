@@ -6,6 +6,7 @@ import type { Listing, ListingStatus } from '../lib/types'
 import { STATUS_LABEL } from '../lib/types'
 import { formatPrice, humanizeError } from '../lib/format'
 import { track, pageView } from '../lib/analytics'
+import SellerSoldSurvey from '../components/SellerSoldSurvey'
 
 export default function MyListings() {
   const { session } = useAuth()
@@ -30,11 +31,16 @@ export default function MyListings() {
     load()
   }, [session]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [soldSurvey, setSoldSurvey] = useState<Listing | null>(null)
+
   async function setStatus(l: Listing, status: ListingStatus) {
     setError(null)
     const { error: err } = await supabase.from('listings').update({ status }).eq('id', l.id)
     if (err) { setError(humanizeError(err.message)); return }
-    if (status === 'sold') track('listing_marked_sold', { listing_id: l.id, days_listed: l.published_at ? Math.round((Date.now() - new Date(l.published_at).getTime()) / 86400000) : null })
+    if (status === 'sold') {
+      track('listing_marked_sold', { listing_id: l.id, days_listed: l.published_at ? Math.round((Date.now() - new Date(l.published_at).getTime()) / 86400000) : null })
+      setSoldSurvey(l) // rule H15
+    }
     if (status === 'hidden') track('listing_hidden', { listing_id: l.id })
     load()
   }
@@ -50,6 +56,7 @@ export default function MyListings() {
 
   return (
     <div className="container" style={{ maxWidth: 760 }}>
+      {soldSurvey && <SellerSoldSurvey listing={soldSurvey} onClose={() => setSoldSurvey(null)} />}
       <div className="row" style={{ alignItems: 'center', marginBottom: 12 }}>
         <h1 style={{ margin: 0 }}>أطقمي</h1>
         <Link to="/new" className="btn btn-accent" style={{ flex: '0 0 auto' }}>اعرض طقم +</Link>

@@ -5,10 +5,12 @@ import { useAuth } from '../context/AuthContext'
 import type { ConversationSummary, Message, Profile } from '../lib/types'
 import { humanizeError } from '../lib/format'
 import { track, pageView } from '../lib/analytics'
+import { useSurvey } from '../context/SurveyContext'
 
 export default function ChatPage() {
   const { id } = useParams()
   const { session } = useAuth()
+  const { askSatisfaction } = useSurvey()
   const me = session?.user.id
   const [conv, setConv] = useState<ConversationSummary | null>(null)
   const [other, setOther] = useState<Profile | null>(null)
@@ -69,6 +71,7 @@ export default function ChatPage() {
     setMessages((prev) => prev.some((x) => x.id === (data as Message).id) ? prev : [...prev, data as Message])
     setText('')
     track('message_sent', { conversation_id: conv!.id, first_message: first, length: text.trim().length, role: conv!.buyer_id === me ? 'buyer' : 'seller' })
+    if (first) setTimeout(() => askSatisfaction('first_conversation'), 1500)
   }
 
   async function contact(channel: 'call' | 'whatsapp') {

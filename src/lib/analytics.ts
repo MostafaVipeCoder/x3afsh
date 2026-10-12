@@ -43,6 +43,17 @@ export type EventName =
   | 'user_unblocked'
   | 'notifications_opened'
   | 'notification_clicked'
+  // phase 3
+  | 'csat_shown'
+  | 'csat_answered'
+  | 'csat_skipped'
+  | 'post_contact_survey_shown'
+  | 'post_contact_survey_answered_first'
+  | 'post_contact_survey_step'
+  | 'post_contact_survey_exited'
+  | 'post_contact_survey_completed'
+  | 'seller_survey_answered'
+  | 'seller_survey_skipped'
 
 const key = import.meta.env.VITE_POSTHOG_KEY as string | undefined
 const host = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || 'https://eu.i.posthog.com'

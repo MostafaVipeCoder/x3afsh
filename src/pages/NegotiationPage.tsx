@@ -6,10 +6,12 @@ import type { Negotiation, Offer, OfferType } from '../lib/types'
 import { NEGOTIATION_LABEL } from '../lib/types'
 import { formatPrice, humanizeError, timeAgo } from '../lib/format'
 import { track, pageView } from '../lib/analytics'
+import { useSurvey } from '../context/SurveyContext'
 
 export default function NegotiationPage() {
   const { id } = useParams()
   const { session } = useAuth()
+  const { askSatisfaction } = useSurvey()
   const me = session?.user.id
   const [n, setN] = useState<Negotiation | null>(null)
   const [offers, setOffers] = useState<Offer[]>([])
@@ -57,6 +59,7 @@ export default function NegotiationPage() {
     track('negotiation_replied', { negotiation_id: n!.id, type, price: price ?? lastPrice, role: isBuyer ? 'buyer' : 'seller', round: n!.round_count })
     if (type === 'accept' || type === 'reject') {
       track('negotiation_ended', { negotiation_id: n!.id, result: type === 'accept' ? 'agreed' : 'rejected', rounds: n!.round_count, final_price: type === 'accept' ? lastPrice : null, listed_price: n!.listed_price, opening_price: n!.opening_price })
+      setTimeout(() => askSatisfaction('negotiation_ended'), 800)
     }
     setShowCounter(false); setCounter('')
     load()
