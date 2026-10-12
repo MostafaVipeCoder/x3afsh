@@ -30,7 +30,12 @@ export default function Login() {
     track('signup_started', { step: 'phone' })
     const { error: err } = await supabase.auth.signInWithOtp({ phone: normalized })
     setBusy(false)
-    if (err) { setError(err.message.includes('rate') ? 'استنى شوية قبل ما تطلب كود تاني' : `مقدرناش نبعت الكود: ${err.message}`); return }
+    if (err) {
+      if (err.message.includes('Unsupported phone provider')) setError('إرسال الكود لسه مش متفعّل على المنصة (راجع دليل التشغيل — خطوة 1).')
+      else if (err.message.toLowerCase().includes('rate')) setError('استنى شوية قبل ما تطلب كود تاني')
+      else setError(`مقدرناش نبعت الكود: ${err.message}`)
+      return
+    }
     setPhone(normalized)
     setStep('otp')
     startResendTimer()
