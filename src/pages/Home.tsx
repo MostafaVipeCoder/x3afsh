@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useRefData } from '../context/RefDataContext'
+import { useAuth } from '../context/AuthContext'
 import type { Listing, RatingStats } from '../lib/types'
 import ListingCard from '../components/ListingCard'
 import { track, pageView } from '../lib/analytics'
@@ -21,6 +22,27 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const debounce = useRef<number | undefined>(undefined)
+  const { session } = useAuth()
+  // docs/04 section 6: after 3 searches without opening a listing → "عرفت تلاقي اللي بتدور عليه؟" (once per visit)
+  const [askSearch, setAskSearch] = useState(false)
+  const [searchAnswered, setSearchAnswered] = useState(false)
+
+  function noteSearch(query: string, resultCount: number) {
+    try {
+      if (sessionStorage.getItem('x3afsh_search_fb') === '1') return
+      const n = Number(sessionStorage.getItem('x3afsh_searches') || 0) + 1
+      sessionStorage.setItem('x3afsh_searches', String(n))
+      if (n >= 3 || resultCount === 0) { setAskSearch(true); track('search_feedback_shown', { searches: n, last_query: query, result_count: resultCount }) }
+    } catch { /* storage may be unavailable */ }
+  }
+
+  async function answerSearch(found: boolean) {
+    try { sessionStorage.setItem('x3afsh_search_fb', '1') } catch { /* ignore */ }
+    track('search_feedback_answered', { found, query: q })
+    if (session) await supabase.from('micro_surveys').insert({ user_id: session.user.id, kind: 'search_feedback', choices: [found ? 'found' : 'not_found'], free_text: q.trim() || null })
+    setSearchAnswered(true)
+    setTimeout(() => setAskSearch(false), 2500)
+  }
 
   function setFilter(key: string, value: string) {
     const n = new URLSearchParams(params)
@@ -59,7 +81,7 @@ export default function Home() {
     setItems((prev) => offset === 0 ? rows : [...prev, ...rows])
     setHasMore(rows.length === PAGE)
     if (offset === 0) {
-      if (q.trim()) track('search_performed', { query: q.trim(), result_count: rows.length })
+      if (q.trim()) { track('search_performed', { query: q.trim(), result_count: rows.length }); noteSearch(q.trim(), rows.length) }
       else track('listings_viewed', { category_id: cat || null, governorate_id: gov || null, max_price: max || null, result_count: rows.length })
     }
   }
@@ -98,6 +120,18 @@ export default function Home() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+
+      {askSearch && (
+        <div className="search-feedback" role="status">
+          {searchAnswered ? <b>شكرًا! 🙏</b> : (
+            <>
+              <b>عرفت تلاقي اللي بتدور عليه؟</b>
+              <button className="btn btn-primary btn-sm" onClick={() => answerSearch(true)}>أيوه</button>
+              <button className="btn btn-outline btn-sm" onClick={() => answerSearch(false)}>لأ</button>
+            </>
+          )}
+        </div>
+      )}
 
       {loading && items.length === 0 ? (
         <div className="spinner" />

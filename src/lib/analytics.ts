@@ -54,6 +54,20 @@ export type EventName =
   | 'post_contact_survey_completed'
   | 'seller_survey_answered'
   | 'seller_survey_skipped'
+  // phase 4
+  | 'report_opened'
+  | 'report_submitted'
+  | 'favorite_added'
+  | 'favorite_removed'
+  | 'listing_bumped'
+  | 'draft_nudge_shown'
+  | 'draft_nudge_answered'
+  | 'search_feedback_shown'
+  | 'search_feedback_answered'
+  | 'missing_features_shown'
+  | 'missing_features_answered'
+  | 'flagged_listing_restored'
+  | 'flagged_listing_deleted'
 
 const key = import.meta.env.VITE_POSTHOG_KEY as string | undefined
 const host = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || 'https://eu.i.posthog.com'

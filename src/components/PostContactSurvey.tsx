@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { supabase, imageUrl } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { track } from '../lib/analytics'
@@ -8,7 +8,7 @@ import { NOT_BOUGHT_REASONS, USEFUL_REASONS, IMPROVEMENT_OPTIONS, EXTRA_COST_TYP
 import Stars from './Stars'
 
 interface Survey { id: string; listing_id: string; shown_count: number; first_contact_at: string }
-interface ListingLite { title: string; price: number | null; image: string | null }
+interface ListingLite { title: string; price: number | null; image: string | null; category_id: number | null }
 
 type Answers = Record<string, unknown>
 type StepId = 'outcome' | 'paid' | 'extra' | 'unagreed' | 'condition' | 'improvement' | 'useful' | 'useful_why' | 'improve_how' | 'reasons' | 'searching' | 'done'
@@ -37,9 +37,10 @@ export default function PostContactSurvey() {
     supabase.rpc('due_post_contact_survey').then(async ({ data }) => {
       const s = (data as Survey | null)
       if (!s || !s.id) return
-      const { data: l } = await supabase.from('listings').select('title, price, listing_images(storage_path, position)').eq('id', s.listing_id).maybeSingle()
-      const imgs = ((l as { listing_images?: { storage_path: string; position: number }[] } | null)?.listing_images ?? []).sort((x, y) => x.position - y.position)
-      setListing({ title: (l as { title?: string } | null)?.title ?? '', price: (l as { price?: number } | null)?.price ?? null, image: imgs[0]?.storage_path ?? null })
+      const { data: l } = await supabase.from('listings').select('title, price, category_id, listing_images(storage_path, position)').eq('id', s.listing_id).maybeSingle()
+      const lite = l as { title?: string; price?: number; category_id?: number; listing_images?: { storage_path: string; position: number }[] } | null
+      const imgs = (lite?.listing_images ?? []).sort((x, y) => x.position - y.position)
+      setListing({ title: lite?.title ?? '', price: lite?.price ?? null, image: imgs[0]?.storage_path ?? null, category_id: lite?.category_id ?? null })
       setSurvey(s); setStep('outcome'); setA({}); started.current = Date.now()
       await supabase.rpc('mark_survey_shown', { p_survey: s.id })
       track('post_contact_survey_shown', { survey_id: s.id, listing_id: s.listing_id, ask_number: s.shown_count + 1, days_since_contact: Math.round((Date.now() - new Date(s.first_contact_at).getTime()) / 86400000) })
@@ -178,7 +179,14 @@ export default function PostContactSurvey() {
           <div style={{ textAlign: 'center', padding: '10px 0' }}>
             <div style={{ fontSize: 40 }}>🙏</div>
             <h2>شكرًا، إجاباتك بتساعدنا نحسّن المنصة</h2>
-            <button className="btn btn-primary" onClick={() => setSurvey(null)}>تمام</button>
+            {a.still_searching === true ? (
+              <div className="row" style={{ justifyContent: 'center' }}>
+                <Link className="btn btn-accent" to={listing.category_id ? `/?cat=${listing.category_id}` : '/'} onClick={() => setSurvey(null)}>شوف أطقم مشابهة معروضة دلوقتي</Link>
+                <button className="btn btn-ghost" onClick={() => setSurvey(null)}>مش دلوقتي</button>
+              </div>
+            ) : (
+              <button className="btn btn-primary" onClick={() => setSurvey(null)}>تمام</button>
+            )}
           </div>
         )}
       </div>

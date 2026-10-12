@@ -2,8 +2,11 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { RefDataProvider } from './context/RefDataContext'
 import { SurveyProvider } from './context/SurveyContext'
+import { FavoritesProvider } from './context/FavoritesContext'
 import Header from './components/Header'
 import PostContactSurvey from './components/PostContactSurvey'
+import MicroSurveys from './components/MicroSurveys'
+import Favorites from './pages/Favorites'
 import Home from './pages/Home'
 import ListingPage from './pages/ListingPage'
 import NewListing from './pages/NewListing'
@@ -22,10 +25,12 @@ export default function App() {
         {/* HashRouter so every link works on GitHub Pages without server rewrites */}
         <HashRouter>
           <SurveyProvider>
+          <FavoritesProvider>
             <Header />
             <main>
               <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/favorites" element={<Favorites />} />
                 <Route path="/listing/:id" element={<ListingPage />} />
                 <Route path="/new" element={<NewListing />} />
                 <Route path="/edit/:id" element={<NewListing />} />
@@ -40,7 +45,9 @@ export default function App() {
               </Routes>
             </main>
             <PostContactSurvey />
+            <MicroSurveys />
             <footer className="footer">Xعفش — عفش مستعمل بين الناس مباشرة. من غير عمولة.</footer>
+          </FavoritesProvider>
           </SurveyProvider>
         </HashRouter>
       </RefDataProvider>

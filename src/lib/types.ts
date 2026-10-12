@@ -9,7 +9,10 @@ export interface Profile {
   phone: string | null
   governorate_id: number | null
   is_owner: boolean
+  created_at: string
 }
+
+export interface SellerStats { seller_id: string; conversations: number; replied: number; median_reply_hours: number | null; sold_count: number; live_count: number; member_since: string }
 
 export interface ListingImage {
   id: string

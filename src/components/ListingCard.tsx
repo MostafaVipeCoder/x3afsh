@@ -3,6 +3,7 @@ import type { Listing } from '../lib/types'
 import { imageUrl } from '../lib/supabase'
 import { formatPrice, timeAgo } from '../lib/format'
 import { track } from '../lib/analytics'
+import FavButton from './FavButton'
 
 export default function ListingCard({ listing, source }: { listing: Listing; source: string }) {
   const first = [...(listing.listing_images ?? [])].sort((a, b) => a.position - b.position)[0]
@@ -15,6 +16,7 @@ export default function ListingCard({ listing, source }: { listing: Listing; sou
       <div className="img">
         {first ? <img src={imageUrl(first.storage_path)} alt={listing.title} loading="lazy" /> : <span>بدون صورة</span>}
         {listing.status === 'sold' && <span className="badge">اتباع</span>}
+        <FavButton listingId={listing.id} />
       </div>
       <div className="c">
         <p className="t">{listing.title}</p>

@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { Stat, Bars, Line, Funnel, fmt } from '../components/charts'
 import { NOT_BOUGHT_REASONS, USEFUL_REASONS, IMPROVEMENT_OPTIONS, CSAT_TRIGGER_LABEL, label } from '../lib/surveyOptions'
-import { pageView } from '../lib/analytics'
+import { pageView, track } from '../lib/analytics'
 
 type Dash = Record<string, Record<string, unknown>>
 type Series = Record<string, unknown>
@@ -24,6 +24,24 @@ export default function Dashboard() {
   const [cur, setCur] = useState<Dash | null>(null)
   const [prev, setPrev] = useState<Dash | null>(null)
   const [ts, setTs] = useState<Series | null>(null)
+  const [extras, setExtras] = useState<Series | null>(null)
+
+  async function loadExtras() {
+    const { data } = await supabase.rpc('owner_extras')
+    setExtras(data as Series)
+  }
+
+  async function restoreFlagged(id: string) {
+    await supabase.from('listings').update({ status: 'published', flagged_at: null, report_count: 0 }).eq('id', id)
+    track('flagged_listing_restored', { listing_id: id })
+    loadExtras()
+  }
+  async function deleteFlagged(id: string) {
+    if (!window.confirm('تمسح الإعلان ده نهائيًا؟')) return
+    await supabase.from('listings').delete().eq('id', id)
+    track('flagged_listing_deleted', { listing_id: id })
+    loadExtras()
+  }
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(true)
 
@@ -57,6 +75,7 @@ export default function Dashboard() {
       if (a.error) { setError(a.error.message); setBusy(false); return }
       setCur(a.data as Dash); setPrev(b.data as Dash); setTs(c.data as Series); setBusy(false)
     })
+    loadExtras()
   }, [profile?.is_owner, range]) // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading || !profile?.is_owner) return <div className="spinner" />
@@ -228,9 +247,16 @@ export default function Dashboard() {
                   <div key={i} className="quote"><b>{String(f.name)}</b> <bdi>{String(f.phone ?? '')}</bdi> — {String(f.reporters)} مشترين · مبالغ غير متفقة {String(f.unagreed)} · أسوأ من الصور {String(f.worse)} · مش محترم {String(f.rude)}</div>
                 ))}
               </div>
-              <div className="card card-body"><h3>أطقم اتخفت بعد بلاغات</h3>
-                {((c.flagged_listings as unknown as Record<string, unknown>[]) ?? []).length === 0 ? <p className="meta">مفيش</p> : ((c.flagged_listings as unknown as Record<string, unknown>[]) ?? []).map((l, i) => (
-                  <div key={i} className="quote"><Link to={`/listing/${l.id}`}>{String(l.title)}</Link> — {String(l.reports)} بلاغات · البايع {String(l.seller)}</div>
+              <div className="card card-body"><h3>أطقم اتخفت بعد بلاغات — قرارك</h3>
+                {((extras?.flagged_listings as Record<string, unknown>[]) ?? []).length === 0 ? <p className="meta">مفيش</p> : ((extras?.flagged_listings as Record<string, unknown>[]) ?? []).map((l, i) => (
+                  <div key={i} className="quote">
+                    <div><Link to={`/listing/${l.id}`}>{String(l.title)}</Link> — {String(l.reports)} بلاغات · البايع {String(l.seller)}</div>
+                    <div className="meta">الأسباب: {((l.reasons as string[]) ?? []).join(' · ')}</div>
+                    <div className="row" style={{ marginTop: 6 }}>
+                      <button className="btn btn-outline btn-sm" onClick={() => restoreFlagged(String(l.id))}>الإعلان سليم — اعرضه تاني</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => deleteFlagged(String(l.id))}>امسحه نهائيًا</button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -260,6 +286,28 @@ export default function Dashboard() {
               <div className="card card-body"><h3>إيه اللي ينقص</h3><Bars data={arr('post_contact', 'improvement_options').map((r) => ({ name: label(IMPROVEMENT_OPTIONS, String(r.reason)), count: r.count }))} /></div>
               <div className="card card-body"><h3>اقتراحات التحسين (آخر 20)</h3>
                 {arr('post_contact', 'suggestions').length === 0 ? <p className="meta">مفيش اقتراحات نصية لسه</p> : arr('post_contact', 'suggestions').map((s, i) => <div key={i} className="quote">{String(s.text)}</div>)}
+              </div>
+            </div>
+          </section>
+
+          {/* ⑦ أسئلة صغيرة عن التجربة */}
+          <section className="dash-section">
+            <h2>⑦ أسئلة صغيرة عن التجربة</h2>
+            <p className="meta">من ملف 04 قسم 6. الأرقام هنا تراكمية من يوم الإطلاق.</p>
+            <div className="charts2">
+              <div className="card card-body"><h3>ليه ماكملوش نشر الطقم؟</h3>
+                <Bars data={((extras?.draft_abandoned as Record<string, unknown>[]) ?? []).map((r) => ({ name: ({ photos_hard: 'رفع الصور صعب', price_unsure: 'مش عارف أحط سعر', later: 'هرجع بعدين', other: 'غير ذلك' } as Record<string, string>)[String(r.reason)] ?? String(r.reason), count: r.count }))} />
+              </div>
+              <div className="card card-body"><h3>عرفت تلاقي اللي بتدور عليه؟</h3>
+                <div className="stats" style={{ gridTemplateColumns: '1fr 1fr' }}>
+                  <Stat label="أيوه" value={(extras?.search_feedback as Record<string, unknown> | undefined)?.found} />
+                  <Stat label="لأ" value={(extras?.search_feedback as Record<string, unknown> | undefined)?.not_found} warn={Number((extras?.search_feedback as Record<string, unknown> | undefined)?.not_found) > Number((extras?.search_feedback as Record<string, unknown> | undefined)?.found)} />
+                </div>
+                <h3>كلمات بحث ملقوش ليها نتيجة</h3>
+                {(((extras?.search_feedback as Record<string, unknown> | undefined)?.queries as string[]) ?? []).length === 0 ? <p className="meta">مفيش</p> : (((extras?.search_feedback as Record<string, unknown>)?.queries as string[]) ?? []).map((t, i) => <span key={i} className="pill pill-draft" style={{ margin: 2 }}>{t}</span>)}
+              </div>
+              <div className="card card-body"><h3>إيه اللي ينقص المنصة؟ (بعد 14 يوم من التسجيل)</h3>
+                {((extras?.missing_features as Record<string, unknown>[]) ?? []).length === 0 ? <p className="meta">مفيش إجابات لسه</p> : ((extras?.missing_features as Record<string, unknown>[]) ?? []).map((m, i) => <div key={i} className="quote">{String(m.text)}</div>)}
               </div>
             </div>
           </section>

@@ -6,6 +6,26 @@ import type { Listing, Negotiation, Profile } from '../lib/types'
 import { formatPrice, humanizeError, timeAgo } from '../lib/format'
 import { track, pageView } from '../lib/analytics'
 import Reviews from '../components/Reviews'
+import FavButton from '../components/FavButton'
+import ReportButton from '../components/ReportButton'
+import type { SellerStats } from '../lib/types'
+
+/** "بيرد على 80% من الرسايل، عادةً خلال 3 ساعات" — shown under the seller's name (docs/03 section د) */
+function sellerLine(s: SellerStats): string {
+  const parts: string[] = []
+  if (Number(s.conversations) >= 3) {
+    const rate = Math.round((Number(s.replied) / Number(s.conversations)) * 100)
+    parts.push(`بيرد على ${rate}% من الرسايل`)
+    if (s.median_reply_hours != null) {
+      const h = Number(s.median_reply_hours)
+      parts.push(h < 1 ? 'عادةً خلال أقل من ساعة' : h < 24 ? `عادةً خلال ${Math.round(h)} ساعة` : `عادةً خلال ${Math.round(h / 24)} يوم`)
+    }
+  } else if (Number(s.conversations) > 0) {
+    parts.push('بايع جديد — لسه مفيش تقييم لسرعة الرد')
+  }
+  if (Number(s.sold_count) > 0) parts.push(`باع ${s.sold_count} ${Number(s.sold_count) === 1 ? 'طقم' : 'أطقم'} هنا`)
+  return parts.join(' · ')
+}
 
 export default function ListingPage() {
   const { id } = useParams()
@@ -14,6 +34,7 @@ export default function ListingPage() {
   const [listing, setListing] = useState<Listing | null>(null)
   const [seller, setSeller] = useState<Profile | null>(null)
   const [openNeg, setOpenNeg] = useState<Negotiation | null>(null)
+  const [stats, setStats] = useState<SellerStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [idx, setIdx] = useState(0)
   const [showNeg, setShowNeg] = useState(false)
@@ -37,12 +58,14 @@ export default function ListingPage() {
         if (l) {
           pageView('listing', { listing_id: l.id })
           if (session) {
-            const [{ data: p }, { data: n }] = await Promise.all([
+            const [{ data: p }, { data: n }, { data: s }] = await Promise.all([
               supabase.from('profiles').select('*').eq('id', l.seller_id).maybeSingle(),
               supabase.from('negotiations').select('*').eq('listing_id', l.id).eq('buyer_id', session.user.id).eq('status', 'open').maybeSingle(),
+              supabase.from('seller_stats').select('*').eq('seller_id', l.seller_id).maybeSingle(),
             ])
             setSeller((p as Profile) ?? null)
             setOpenNeg((n as Negotiation) ?? null)
+            setStats((s as SellerStats) ?? null)
           }
         }
       })
@@ -121,7 +144,10 @@ export default function ListingPage() {
         <div>
           <div className="card"><div className="card-body">
             {listing.status === 'sold' && <div className="alert alert-info">الطقم ده اتباع</div>}
-            <h1>{listing.title}</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+              <h1 style={{ flex: 1 }}>{listing.title}</h1>
+              {!isOwner && <FavButton listingId={listing.id} size="lg" />}
+            </div>
             <p className="price-big">{formatPrice(listing.price)}</p>
             <p className="meta">
               {listing.categories?.name_ar} · {listing.governorates?.name_ar}
@@ -141,7 +167,8 @@ export default function ListingPage() {
               </div>
             ) : listing.status !== 'published' ? null : session ? (
               <>
-                <p><b>البايع:</b> {seller?.display_name || '—'}</p>
+                <p style={{ marginBottom: 2 }}><b>البايع:</b> {seller?.display_name || '—'}</p>
+                {stats && sellerLine(stats) && <p className="meta" style={{ marginTop: 0 }}>{sellerLine(stats)}</p>}
 
                 {openNeg ? (
                   <Link className="btn btn-outline btn-block" to={`/negotiation/${openNeg.id}`}>عندك تفاوض مفتوح على الطقم ده — افتحه</Link>
@@ -164,6 +191,7 @@ export default function ListingPage() {
                   <button className="btn btn-outline" onClick={() => contact('call')} disabled={!phone}>اتصل</button>
                 </div>
                 <p className="meta" style={{ marginTop: 10 }}>البيع بيتم بينك وبين البايع مباشرة. Xعفش مش طرف في الصفقة ومفيش عمولة.</p>
+                <div style={{ textAlign: 'center', marginTop: 4 }}><ReportButton targetType="listing" targetId={listing.id} /></div>
               </>
             ) : (
               <>

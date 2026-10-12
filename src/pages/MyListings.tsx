@@ -45,6 +45,15 @@ export default function MyListings() {
     load()
   }
 
+  // Rule B9: the seller confirms the listing is still available → reset the 30-day idle clock
+  async function bump(l: Listing) {
+    setError(null)
+    const { error: err } = await supabase.from('listings').update({ last_activity_at: new Date().toISOString(), reminder_sent_at: null }).eq('id', l.id)
+    if (err) { setError(humanizeError(err.message)); return }
+    track('listing_bumped', { listing_id: l.id })
+    load()
+  }
+
   async function remove(l: Listing) {
     if (!window.confirm('تمسح الطقم ده نهائيًا؟')) return
     const { error: err } = await supabase.from('listings').delete().eq('id', l.id)
@@ -77,6 +86,12 @@ export default function MyListings() {
                     <b style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{l.title || 'بدون عنوان'}</b>
                   </div>
                   <div className="meta">{formatPrice(l.price)} · {l.categories?.name_ar ?? '—'} · {(l.listing_images ?? []).length} صور</div>
+                  {l.status === 'published' && (l as Listing & { reminder_sent_at?: string | null }).reminder_sent_at && (
+                    <div className="alert alert-info" style={{ margin: '6px 0 0', padding: '6px 10px', fontSize: 13 }}>
+                      لسه الطقم ده موجود؟ <button className="btn btn-primary btn-sm" onClick={() => bump(l)}>أيوه لسه</button> <button className="btn btn-ghost btn-sm" onClick={() => setStatus(l, 'sold')}>لأ، اتباع</button>
+                      <div className="meta" style={{ fontSize: 11 }}>لو مفيش رد خلال 30 يوم هيتخفي تلقائيًا.</div>
+                    </div>
+                  )}
                 </div>
                 <div className="actions">
                   {l.status === 'draft' && <Link className="btn btn-primary btn-sm" to={`/edit/${l.id}`}>كمّل ونشر</Link>}

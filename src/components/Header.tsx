@@ -16,6 +16,7 @@ export default function Header() {
           {profile?.is_owner && <NavLink to="/dashboard">📊 لوحة التحكم</NavLink>}
           {session && <NavLink to="/inbox">الوارد</NavLink>}
           {session && <NavLink to="/my" className="hide-sm">أطقمي</NavLink>}
+          {session && <NavLink to="/favorites" className="hide-sm" aria-label="المفضلة">♥</NavLink>}
           {session ? (
             <>
               <NavLink to="/account" className="hide-sm">حسابي</NavLink>

@@ -247,3 +247,13 @@ textarea.input { min-height: 120px; resize: vertical; }
 .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 4px; vertical-align: middle; }
 .quote { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
 .quote:last-child { border-bottom: 0; }
+
+/* ===== Phase 4: favorites, reports, search feedback ===== */
+.fav { background: rgba(255,255,255,.92); border: 0; border-radius: 999px; width: 32px; height: 32px; font-size: 18px; line-height: 1; color: var(--muted); display: inline-flex; align-items: center; justify-content: center; }
+.fav.on { color: var(--accent); }
+.lcard .fav { position: absolute; top: 8px; inset-inline-end: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.fav.lg { width: auto; height: auto; padding: 6px 12px; border: 1.5px solid var(--line); font-size: 15px; font-weight: 700; gap: 4px; background: #fff; }
+.fav.lg.on { border-color: var(--accent); background: #fff3ef; }
+.nav a[aria-label="المفضلة"] { font-size: 18px; }
+.search-feedback { background: var(--primary-soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.search-feedback b { flex: 1; }

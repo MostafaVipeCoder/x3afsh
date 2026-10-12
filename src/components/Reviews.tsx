@@ -6,6 +6,7 @@ import type { Review, RatingStats } from '../lib/types'
 import { countNonSpace, humanizeError, timeAgo } from '../lib/format'
 import { track } from '../lib/analytics'
 import Stars from './Stars'
+import ReportButton from './ReportButton'
 
 const MIN_COMMENT = 15
 
@@ -129,6 +130,7 @@ export default function Reviews({ listingId, sellerId, listingStatus }: Props) {
                   {r.author_id === sellerId && <span className="pill pill-published">البايع</span>}
                   {r.rating != null && <Stars value={r.rating} size={14} />}
                   <span className="meta">{timeAgo(r.created_at)}</span>
+                  {session && r.author_id !== me && <span style={{ marginInlineStart: 'auto' }}><ReportButton targetType="review" targetId={r.id} compact /></span>}
                 </div>
                 <p style={{ margin: '4px 0', whiteSpace: 'pre-wrap' }}>{r.body}</p>
                 {session && (isSeller || r.author_id === me) && replyTo !== r.id && r.author_id !== me && (
