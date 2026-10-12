@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext'
 import { useFavorites } from '../context/FavoritesContext'
 
 export default function FavButton({ listingId, size = 'sm' }: { listingId: string; size?: 'sm' | 'lg' }) {
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
   const { ids, toggle } = useFavorites()
   const navigate = useNavigate()
   const on = ids.has(listingId)
+  if (profile?.is_owner) return null
   return (
     <button
       type="button"

@@ -19,7 +19,7 @@ export default function MicroSurveys() {
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
-    if (!session || !profile || draft || missing) return
+    if (!session || !profile || profile.is_owner || draft || missing) return
     // never interrupt someone who is on the listing form itself
     if (location.pathname.startsWith('/new') || location.pathname.startsWith('/edit')) return
     ;(async () => {

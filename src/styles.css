@@ -266,3 +266,7 @@ textarea.input { min-height: 120px; resize: vertical; }
 .legal h3 { margin-top: 18px; }
 .legal ul { padding-inline-start: 20px; }
 .legal li { margin-bottom: 4px; }
+
+/* ===== Owner mode ===== */
+.header.owner { background: var(--ink); }
+.owner-tag { font-size: 11px; font-weight: 600; background: var(--accent); color: #fff; padding: 1px 8px; border-radius: 999px; margin-inline-start: 6px; vertical-align: middle; letter-spacing: 0; }

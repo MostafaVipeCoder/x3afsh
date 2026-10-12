@@ -18,7 +18,7 @@ const NOT_BOUGHT_STEPS: StepId[] = ['outcome', 'reasons', 'searching', 'useful']
 
 /** Rules H1–H14: ask the buyer what happened after they clicked call / WhatsApp. Mounted once in App. */
 export default function PostContactSurvey() {
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
   const location = useLocation()
   const [survey, setSurvey] = useState<Survey | null>(null)
   const [listing, setListing] = useState<ListingLite | null>(null)
@@ -30,7 +30,7 @@ export default function PostContactSurvey() {
 
   // Check at most once a minute per user, on navigation, whether a survey is due (H2, H5, H6 are enforced in the database)
   useEffect(() => {
-    if (!session || survey) return
+    if (!session || survey || profile?.is_owner) return
     const uid = session.user.id
     if (checked.current.user === uid && Date.now() - checked.current.at < 60_000) return
     checked.current = { user: uid, at: Date.now() }
@@ -45,7 +45,7 @@ export default function PostContactSurvey() {
       await supabase.rpc('mark_survey_shown', { p_survey: s.id })
       track('post_contact_survey_shown', { survey_id: s.id, listing_id: s.listing_id, ask_number: s.shown_count + 1, days_since_contact: Math.round((Date.now() - new Date(s.first_contact_at).getTime()) / 86400000) })
     })
-  }, [session, location.pathname, survey])
+  }, [session, location.pathname, survey, profile?.is_owner])
 
   if (!survey || !listing) return null
 

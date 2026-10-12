@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useRefData } from '../context/RefDataContext'
 import { useAuth } from '../context/AuthContext'
@@ -22,12 +22,13 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const debounce = useRef<number | undefined>(undefined)
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
   // docs/04 section 6: after 3 searches without opening a listing → "عرفت تلاقي اللي بتدور عليه؟" (once per visit)
   const [askSearch, setAskSearch] = useState(false)
   const [searchAnswered, setSearchAnswered] = useState(false)
 
   function noteSearch(query: string, resultCount: number) {
+    if (profile?.is_owner) return
     try {
       if (sessionStorage.getItem('x3afsh_search_fb') === '1') return
       const n = Number(sessionStorage.getItem('x3afsh_searches') || 0) + 1
@@ -120,6 +121,13 @@ export default function Home() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+
+      {profile?.is_owner && (
+        <div className="alert alert-info" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ flex: 1 }}>👁 بتتصفح المنصة كصاحبها. افتح أي إعلان عشان تراجعه أو تخفيه.</span>
+          <Link className="btn btn-primary btn-sm" to="/dashboard">لوحة التحكم</Link>
+        </div>
+      )}
 
       {askSearch && (
         <div className="search-feedback" role="status">

@@ -7,6 +7,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import Header from './components/Header'
 import PostContactSurvey from './components/PostContactSurvey'
 import MicroSurveys from './components/MicroSurveys'
+import { NotForOwner, OwnerLanding } from './components/OwnerOnly'
 import Favorites from './pages/Favorites'
 import Home from './pages/Home'
 import ListingPage from './pages/ListingPage'
@@ -30,23 +31,25 @@ export default function App() {
             <SurveyProvider>
             <FavoritesProvider>
               <Header />
+              <OwnerLanding />
               <main>
                 <ErrorBoundary>
                   <Routes>
                     <Route path="/" element={<Home />} />
-                    <Route path="/favorites" element={<Favorites />} />
                     <Route path="/listing/:id" element={<ListingPage />} />
-                    <Route path="/new" element={<NewListing />} />
-                    <Route path="/edit/:id" element={<NewListing />} />
-                    <Route path="/my" element={<MyListings />} />
-                    <Route path="/inbox" element={<Inbox />} />
-                    <Route path="/negotiation/:id" element={<NegotiationPage />} />
-                    <Route path="/chat/:id" element={<ChatPage />} />
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/account" element={<Account />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/privacy" element={<Privacy />} />
+                    {/* marketplace-only pages */}
+                    <Route path="/favorites" element={<NotForOwner><Favorites /></NotForOwner>} />
+                    <Route path="/new" element={<NotForOwner><NewListing /></NotForOwner>} />
+                    <Route path="/edit/:id" element={<NotForOwner><NewListing /></NotForOwner>} />
+                    <Route path="/my" element={<NotForOwner><MyListings /></NotForOwner>} />
+                    <Route path="/inbox" element={<NotForOwner><Inbox /></NotForOwner>} />
+                    <Route path="/negotiation/:id" element={<NotForOwner><NegotiationPage /></NotForOwner>} />
+                    <Route path="/chat/:id" element={<NotForOwner><ChatPage /></NotForOwner>} />
                     <Route path="*" element={<Home />} />
                   </Routes>
                 </ErrorBoundary>

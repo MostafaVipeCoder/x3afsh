@@ -8,6 +8,7 @@ import { track, pageView } from '../lib/analytics'
 import Reviews from '../components/Reviews'
 import FavButton from '../components/FavButton'
 import ReportButton from '../components/ReportButton'
+import OwnerModeration from '../components/OwnerModeration'
 import type { SellerStats } from '../lib/types'
 
 /** "بيرد على 80% من الرسايل، عادةً خلال 3 ساعات" — shown under the seller's name (docs/03 section د) */
@@ -29,8 +30,10 @@ function sellerLine(s: SellerStats): string {
 
 export default function ListingPage() {
   const { id } = useParams()
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
+  const isPlatformOwner = !!profile?.is_owner
   const navigate = useNavigate()
+  const [reloadKey, setReloadKey] = useState(0)
   const [listing, setListing] = useState<Listing | null>(null)
   const [seller, setSeller] = useState<Profile | null>(null)
   const [openNeg, setOpenNeg] = useState<Negotiation | null>(null)
@@ -57,7 +60,7 @@ export default function ListingPage() {
         setLoading(false)
         if (l) {
           pageView('listing', { listing_id: l.id })
-          if (session) {
+          if (session && !isPlatformOwner) {
             const [{ data: p }, { data: n }, { data: s }] = await Promise.all([
               supabase.from('profiles').select('*').eq('id', l.seller_id).maybeSingle(),
               supabase.from('negotiations').select('*').eq('listing_id', l.id).eq('buyer_id', session.user.id).eq('status', 'open').maybeSingle(),
@@ -69,7 +72,7 @@ export default function ListingPage() {
           }
         }
       })
-  }, [id, session])
+  }, [id, session, isPlatformOwner, reloadKey])
 
   useEffect(() => () => {
     if (swipes.current.size > 1 && listing) track('listing_images_swiped', { listing_id: listing.id, images_seen: swipes.current.size })
@@ -146,7 +149,7 @@ export default function ListingPage() {
             {listing.status === 'sold' && <div className="alert alert-info">الطقم ده اتباع</div>}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
               <h1 style={{ flex: 1 }}>{listing.title}</h1>
-              {!isOwner && <FavButton listingId={listing.id} size="lg" />}
+              {!isOwner && !isPlatformOwner && <FavButton listingId={listing.id} size="lg" />}
             </div>
             <p className="price-big">{formatPrice(listing.price)}</p>
             <p className="meta">
@@ -160,7 +163,9 @@ export default function ListingPage() {
 
             {error && <div className="alert alert-error">{error}</div>}
 
-            {isOwner ? (
+            {isPlatformOwner ? (
+              <OwnerModeration listing={listing} onChange={() => setReloadKey((k) => k + 1)} />
+            ) : isOwner ? (
               <div className="row">
                 <Link className="btn btn-outline" to={`/edit/${listing.id}`}>عدّل الطقم</Link>
                 <Link className="btn btn-ghost" to="/inbox">الوارد</Link>
@@ -203,9 +208,9 @@ export default function ListingPage() {
         </div>
       </div>
 
-      <Reviews listingId={listing.id} sellerId={listing.seller_id} listingStatus={listing.status} />
+      <Reviews listingId={listing.id} sellerId={listing.seller_id} listingStatus={listing.status} readOnly={isPlatformOwner} />
 
-      {!isOwner && listing.status === 'published' && session && (
+      {!isOwner && !isPlatformOwner && listing.status === 'published' && session && (
         <div className="sticky-bottom">
           <button className="btn btn-primary" style={{ flex: 1 }} onClick={openChat}>راسل</button>
           <button className="btn btn-whatsapp" style={{ flex: 1 }} onClick={() => contact('whatsapp')} disabled={!phone}>واتساب</button>

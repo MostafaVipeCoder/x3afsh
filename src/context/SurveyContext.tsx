@@ -15,17 +15,17 @@ const Ctx = createContext<SurveyState>({ askSatisfaction: () => {} })
 const FACES: [number, string, string][] = [[1, '😞', 'سيئة'], [2, '🙁', 'مش ولا بد'], [3, '😐', 'عادية'], [4, '🙂', 'كويسة'], [5, '😍', 'ممتازة']]
 
 export function SurveyProvider({ children }: { children: ReactNode }) {
-  const { session } = useAuth()
+  const { session, profile } = useAuth()
   const [trigger, setTrigger] = useState<Trigger | null>(null)
   const [score, setScore] = useState<number | null>(null)
   const [comment, setComment] = useState('')
   const [busy, setBusy] = useState(false)
 
   const askSatisfaction = useCallback(async (t: Trigger) => {
-    if (!session) return
+    if (!session || profile?.is_owner) return
     const { data } = await supabase.rpc('can_ask_satisfaction')
     if (data === true) { setTrigger(t); setScore(null); setComment(''); track('csat_shown', { trigger: t }) }
-  }, [session])
+  }, [session, profile?.is_owner])
 
   async function submit(skipped: boolean) {
     if (!trigger || !session) return

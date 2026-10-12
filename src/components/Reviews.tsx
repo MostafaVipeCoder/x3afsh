@@ -10,9 +10,9 @@ import ReportButton from './ReportButton'
 
 const MIN_COMMENT = 15
 
-interface Props { listingId: string; sellerId: string; listingStatus: string }
+interface Props { listingId: string; sellerId: string; listingStatus: string; readOnly?: boolean }
 
-export default function Reviews({ listingId, sellerId, listingStatus }: Props) {
+export default function Reviews({ listingId, sellerId, listingStatus, readOnly }: Props) {
   const { session } = useAuth()
   const me = session?.user.id
   const isSeller = me === sellerId
@@ -90,7 +90,7 @@ export default function Reviews({ listingId, sellerId, listingStatus }: Props) {
 
         {error && <div className="alert alert-error" style={{ marginTop: 10 }}>{error}</div>}
 
-        {listingStatus === 'published' && (session ? (
+        {listingStatus === 'published' && !readOnly && (session ? (
           <form onSubmit={submit} style={{ marginTop: 12, background: 'var(--bg)', padding: 12, borderRadius: 10 }}>
             {!isSeller && (
               <div className="field" style={{ marginBottom: 8 }}>
@@ -130,10 +130,10 @@ export default function Reviews({ listingId, sellerId, listingStatus }: Props) {
                   {r.author_id === sellerId && <span className="pill pill-published">البايع</span>}
                   {r.rating != null && <Stars value={r.rating} size={14} />}
                   <span className="meta">{timeAgo(r.created_at)}</span>
-                  {session && r.author_id !== me && <span style={{ marginInlineStart: 'auto' }}><ReportButton targetType="review" targetId={r.id} compact /></span>}
+                  {session && !readOnly && r.author_id !== me && <span style={{ marginInlineStart: 'auto' }}><ReportButton targetType="review" targetId={r.id} compact /></span>}
                 </div>
                 <p style={{ margin: '4px 0', whiteSpace: 'pre-wrap' }}>{r.body}</p>
-                {session && (isSeller || r.author_id === me) && replyTo !== r.id && r.author_id !== me && (
+                {session && !readOnly && (isSeller || r.author_id === me) && replyTo !== r.id && r.author_id !== me && (
                   <button className="btn btn-ghost btn-sm" style={{ padding: '2px 6px' }} onClick={() => setReplyTo(r.id)}>رد</button>
                 )}
                 {repliesOf(r.id).map((rep) => (
