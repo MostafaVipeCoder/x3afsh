@@ -9,6 +9,7 @@ export interface Profile {
   phone: string | null
   governorate_id: number | null
   is_owner: boolean
+  phone_verified: boolean
   created_at: string
 }
 

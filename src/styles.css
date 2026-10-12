@@ -257,3 +257,12 @@ textarea.input { min-height: 120px; resize: vertical; }
 .nav a[aria-label="المفضلة"] { font-size: 18px; }
 .search-feedback { background: var(--primary-soft); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .search-feedback b { flex: 1; }
+
+/* ===== Production polish: Google button, legal pages ===== */
+.or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; margin: 14px 0; }
+.or::before, .or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.btn-google { background: #fff; border-color: var(--line); color: var(--ink); gap: 10px; }
+.btn-google:hover:not(:disabled) { background: var(--bg); }
+.legal h3 { margin-top: 18px; }
+.legal ul { padding-inline-start: 20px; }
+.legal li { margin-bottom: 4px; }

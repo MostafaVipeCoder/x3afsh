@@ -39,6 +39,7 @@ export function humanizeError(message: string): string {
       category: 'التصنيف',
       governorate: 'المحافظة',
       images: '3 صور على الأقل',
+      phone: 'رقم موبايل في حسابك (من صفحة حسابي)',
     }
     const parts = message.split(':')[1].split(',').map((k) => map[k] ?? k)
     return `الطقم ناقصه: ${parts.join('، ')}`

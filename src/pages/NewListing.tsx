@@ -39,7 +39,8 @@ export default function NewListing() {
 
   useEffect(() => {
     if (!session) { navigate(`/login?next=${editId ? `/edit/${editId}` : '/new'}`); return }
-    if (profile && !profile.display_name) { navigate(`/account?first=1&next=${editId ? `/edit/${editId}` : '/new'}`); return }
+    // A seller must have a name and a phone number before listing (buyers call / WhatsApp that number)
+    if (profile && (!profile.display_name || !profile.phone)) { navigate(`/account?first=1&next=${editId ? `/edit/${editId}` : '/new'}`); return }
     if (!gov && profile?.governorate_id && !editId) setGov(String(profile.governorate_id))
   }, [session, profile]) // eslint-disable-line react-hooks/exhaustive-deps
 
