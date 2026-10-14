@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { Stat, Bars, Line, Funnel, fmt } from '../components/charts'
 import { NOT_BOUGHT_REASONS, USEFUL_REASONS, IMPROVEMENT_OPTIONS, CSAT_TRIGGER_LABEL, label } from '../lib/surveyOptions'
 import { pageView, track } from '../lib/analytics'
+import CapacityPanel from '../components/CapacityPanel'
 
 type Dash = Record<string, Record<string, unknown>>
 type Series = Record<string, unknown>
@@ -118,6 +119,7 @@ export default function Dashboard() {
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
+      <CapacityPanel />
       {busy && <div className="spinner" />}
 
       {cur && !busy && (

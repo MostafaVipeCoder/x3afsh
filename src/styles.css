@@ -270,3 +270,19 @@ textarea.input { min-height: 120px; resize: vertical; }
 /* ===== Owner mode ===== */
 .header.owner { background: var(--ink); }
 .owner-tag { font-size: 11px; font-weight: 600; background: var(--accent); color: #fff; padding: 1px 8px; border-radius: 999px; margin-inline-start: 6px; vertical-align: middle; letter-spacing: 0; }
+
+/* ===== Capacity monitoring (owner dashboard) ===== */
+.alert-warn { background: #fff6e0; color: #8a5a00; }
+.cap { display: flex; flex-direction: column; gap: 4px; }
+.cap-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.cap-badge { font-size: 12px; font-weight: 800; padding: 2px 10px; border-radius: 999px; }
+.cap-badge.cap-ok { background: #e6f6ee; color: var(--success); }
+.cap-badge.cap-warn { background: #fff1cc; color: #8a5a00; }
+.cap-badge.cap-danger { background: #fdecea; color: var(--danger); }
+.cap-num b { font-size: 26px; font-weight: 800; }
+.cap-track { height: 12px; background: var(--bg); border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+.cap-fill { height: 100%; border-radius: 6px; background: var(--success); transition: width .4s; }
+.cap-warn .cap-fill { background: #e0a000; }
+.cap-danger .cap-fill { background: var(--danger); }
+.card.cap-danger { border-color: #f3c3bd; background: #fff8f7; }
+.card.cap-warn { border-color: #f2d48a; background: #fffcf3; }
