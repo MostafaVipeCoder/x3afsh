@@ -38,9 +38,13 @@ export const EXTRA_COST_TYPES: [string, string][] = [
 ]
 
 export const CSAT_TRIGGER_LABEL: Record<string, string> = {
-  listing_published: 'بعد نشر طقم',
-  negotiation_ended: 'بعد انتهاء تفاوض',
-  first_conversation: 'بعد أول محادثة',
+  returning_seller: 'بايع حد تواصل معاه',
+  returning_buyer: 'مشتري تواصل مع بايع',
+  returning_no_contact: 'بايع محدش تواصل معاه (أسبوع)',
+  // old triggers (before 14 Oct): asked right after an action
+  listing_published: 'بعد نشر طقم (قديم)',
+  negotiation_ended: 'بعد انتهاء تفاوض (قديم)',
+  first_conversation: 'بعد أول محادثة (قديم)',
 }
 
 export function label(list: [string, string][], slug: string): string {

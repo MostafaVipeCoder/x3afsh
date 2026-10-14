@@ -7,7 +7,6 @@ import type { Listing, ListingImage } from '../lib/types'
 import ImageUploader, { MIN_IMAGES } from '../components/ImageUploader'
 import { countNonSpace, humanizeError, formatPrice } from '../lib/format'
 import { track, pageView } from '../lib/analytics'
-import { useSurvey } from '../context/SurveyContext'
 
 const MIN_DESC = 30
 type Step = 1 | 2 | 3
@@ -17,7 +16,6 @@ export default function NewListing() {
   const { session, profile } = useAuth()
   const { categories, governorates } = useRefData()
   const navigate = useNavigate()
-  const { askSatisfaction } = useSurvey()
 
   const [step, setStep] = useState<Step>(1)
   const [listingId, setListingId] = useState<string | null>(editId ?? null)
@@ -105,12 +103,10 @@ export default function NewListing() {
       track('listing_publish_failed', { listing_id: listingId, missing: err.message.split(':')[1] ?? err.message })
       return
     }
-    const firstPublish = status !== 'published'
     published.current = true
     setStatus('published')
     track('listing_published', { listing_id: listingId, category_id: Number(cat), governorate_id: Number(gov), price: priceNum, images: images.length, edited: !!editId })
     navigate(`/listing/${listingId}`, { replace: true })
-    if (firstPublish) askSatisfaction('listing_published')
   }
 
   if (!session || loading) return <div className="spinner" />
