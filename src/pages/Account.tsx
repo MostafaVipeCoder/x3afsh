@@ -47,7 +47,7 @@ export default function Account() {
     setBusy(true)
     const { error: err } = await supabase.from('profiles').update(patch).eq('id', session!.user.id)
     setBusy(false)
-    if (err) { setError(err.message.includes('profiles_phone_key') ? 'الرقم ده مسجّل بحساب تاني. لو ده رقمك، ادخل بيه بدل جوجل.' : err.message); return }
+    if (err) { setError(err.message.includes('profiles_phone_key') ? 'الرقم ده مسجّل بحساب تاني على المنصة. لو ده رقمك فعلًا، تواصل معانا.' : err.message); return }
     await refreshProfile()
     track('profile_updated', { first_time: first, has_governorate: !!gov, phone_added: canEditPhone && !!patch.phone })
     if (first) navigate(next, { replace: true })
