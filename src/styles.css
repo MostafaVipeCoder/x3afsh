@@ -286,3 +286,11 @@ textarea.input { min-height: 120px; resize: vertical; }
 .cap-danger .cap-fill { background: var(--danger); }
 .card.cap-danger { border-color: #f3c3bd; background: #fff8f7; }
 .card.cap-warn { border-color: #f2d48a; background: #fffcf3; }
+
+/* ===== Traffic tables (owner dashboard) ===== */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.dtable { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+.dtable th { text-align: start; font-size: 12px; color: var(--muted); font-weight: 700; padding: 6px 8px; border-bottom: 2px solid var(--line); white-space: nowrap; }
+.dtable td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.dtable tbody tr:hover { background: var(--bg); }
+.dtable td:not(:first-child) { white-space: nowrap; font-variant-numeric: tabular-nums; }

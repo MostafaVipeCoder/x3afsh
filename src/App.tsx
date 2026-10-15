@@ -6,6 +6,7 @@ import { FavoritesProvider } from './context/FavoritesContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import Header from './components/Header'
 import PostContactSurvey from './components/PostContactSurvey'
+import PageTracker from './components/PageTracker'
 import MicroSurveys from './components/MicroSurveys'
 import { NotForOwner, OwnerLanding } from './components/OwnerOnly'
 import Favorites from './pages/Favorites'
@@ -32,6 +33,7 @@ export default function App() {
             <FavoritesProvider>
               <Header />
               <OwnerLanding />
+              <PageTracker />
               <main>
                 <ErrorBoundary>
                   <Routes>
